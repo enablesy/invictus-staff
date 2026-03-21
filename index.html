@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staff Portal — INVICTUS Network</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23111827'/><text x='50%25' y='23' font-size='13' font-family='Georgia,serif' font-weight='900' fill='%23e8c46a' text-anchor='middle'>INV</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Crimson+Pro:ital,wght@0,400;1,400&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#03050a;--bg2:#05070e;--surface:#090d18;--surface2:#0d1220;
+  --border:rgba(255,255,255,0.055);--border2:rgba(255,255,255,0.09);
+  --text:#8090a8;--bright:#c8dae8;--dim:#334050;
+  --gold:#c8a44a;--gold2:#e8c46a;
+  --red:#c04848;--green:#3a9c6a;
+}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Rajdhani',sans-serif;font-size:16px;line-height:1.6;
+  overflow-x:hidden;
+}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:rgba(200,164,74,0.25);border-radius:2px}
+
+/* ── LOCK SCREEN ── */
+#lock-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  padding:24px;
+}
+#lock-screen::before{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(200,164,74,0.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(200,164,74,0.02) 1px,transparent 1px);
+  background-size:72px 72px;
+  mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 10%,transparent 100%);
+  -webkit-mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 10%,transparent 100%);
+}
+.lock-box{
+  position:relative;z-index:1;
+  width:100%;max-width:420px;
+  background:var(--surface);border:1px solid var(--border2);
+  padding:48px 40px;
+  animation:fadeUp .6s ease both;
+}
+.lock-logo{
+  font-family:'Cinzel',serif;font-size:.8rem;font-weight:700;
+  color:var(--gold);letter-spacing:.18em;
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:36px;
+}
+.lock-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 2.5s ease infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.lock-title{
+  font-family:'Cinzel',serif;font-size:1.4rem;font-weight:700;
+  color:var(--bright);margin-bottom:6px;
+}
+.lock-desc{
+  font-family:'Crimson Pro',serif;font-size:.95rem;color:var(--dim);
+  line-height:1.7;font-style:italic;margin-bottom:28px;
+}
+.lock-label{
+  font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:8px;display:block;
+}
+.lock-input{
+  width:100%;padding:11px 14px;
+  background:var(--surface2);
+  border:1px solid var(--border2);border-radius:2px;
+  color:var(--bright);font-family:'Rajdhani',sans-serif;
+  font-size:.9rem;letter-spacing:.08em;
+  outline:none;transition:border-color .2s;
+  margin-bottom:12px;
+}
+.lock-input:focus{border-color:rgba(200,164,74,0.4);}
+.lock-input.error{border-color:var(--red);animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.lock-btn{
+  width:100%;padding:11px;
+  background:var(--gold);color:var(--bg);
+  font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;
+  letter-spacing:.14em;text-transform:uppercase;
+  border:none;border-radius:2px;cursor:pointer;
+  transition:background .2s;
+}
+.lock-btn:hover{background:var(--gold2);}
+.lock-error{
+  font-size:.75rem;color:var(--red);letter-spacing:.06em;
+  margin-top:10px;display:none;
+}
+.lock-error.show{display:block;}
+.lock-ornament{
+  margin-top:32px;padding-top:24px;border-top:1px solid var(--border);
+  font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);text-align:center;
+}
+
+/* ── MAIN CONTENT ── */
+#main-content{display:none;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  padding:14px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(3,5,10,0.95);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Cinzel',serif;font-size:.82rem;font-weight:700;
+  color:var(--gold);letter-spacing:.16em;
+  display:flex;align-items:center;gap:10px;text-decoration:none;
+}
+.nav-logo-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2s ease infinite;}
+.nav-right{display:flex;align-items:center;gap:16px;}
+.nav-tag{
+  font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--dim);padding:4px 10px;
+  border:1px solid var(--border);border-radius:2px;
+}
+.nav-logout{
+  font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--dim);cursor:pointer;transition:color .2s;
+  background:none;border:none;font-family:'Rajdhani',sans-serif;font-weight:600;
+}
+.nav-logout:hover{color:var(--red);}
+
+/* ── HERO ── */
+.portal-hero{
+  padding:100px 48px 64px;
+  border-bottom:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.portal-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 50% 60% at 15% 50%,rgba(200,164,74,0.04),transparent 60%);
+  pointer-events:none;
+}
+.hero-inner{max-width:900px;position:relative;z-index:1;}
+.hero-eyebrow{
+  font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:14px;
+  display:flex;align-items:center;gap:12px;
+}
+.hero-eyebrow::before{content:'';width:24px;height:1px;background:var(--gold);}
+.hero-h1{
+  font-family:'Cinzel',serif;font-size:clamp(1.8rem,4vw,3rem);
+  font-weight:900;color:var(--bright);line-height:1.05;margin-bottom:12px;
+}
+.hero-h1 em{font-style:normal;color:var(--gold);}
+.hero-desc{
+  font-family:'Crimson Pro',serif;font-size:1.05rem;color:var(--dim);
+  line-height:1.85;font-style:italic;max-width:560px;
+}
+
+/* ── GRID DE DOCUMENTOS ── */
+.portal-content{max-width:1200px;margin:0 auto;padding:48px;}
+
+.section-label{
+  font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+.docs-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:3px;margin-bottom:48px;
+}
+.doc-card{
+  background:var(--surface);border:1px solid var(--border);
+  padding:24px 22px;
+  display:flex;flex-direction:column;gap:12px;
+  text-decoration:none;transition:border-color .2s,background .2s;
+  position:relative;overflow:hidden;
+}
+.doc-card:hover{border-color:var(--border2);background:var(--surface2);}
+.doc-card::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;width:2px;
+  background:var(--card-color,var(--gold));
+  transform:scaleY(0);transition:transform .2s;transform-origin:bottom;
+}
+.doc-card:hover::before{transform:scaleY(1);}
+.doc-icon{font-size:1.5rem;}
+.doc-title{
+  font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;
+  color:var(--bright);letter-spacing:.04em;
+}
+.doc-desc{
+  font-family:'Crimson Pro',serif;font-size:.88rem;color:var(--dim);
+  line-height:1.6;flex:1;
+}
+.doc-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:4px;
+}
+.doc-tag{
+  font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:2px 7px;border-radius:2px;font-weight:700;
+}
+.doc-arrow{font-size:.8rem;color:var(--dim);transition:color .2s,transform .2s;}
+.doc-card:hover .doc-arrow{color:var(--bright);transform:translateX(3px);}
+
+/* ── DEV SECTION (bloqueada) ── */
+.dev-section{
+  border:1px solid rgba(192,72,72,0.2);
+  background:rgba(192,72,72,0.03);
+  padding:28px;
+  position:relative;
+}
+.dev-lock-overlay{
+  display:flex;flex-direction:column;align-items:center;
+  gap:16px;padding:16px;
+}
+#dev-locked{display:block;}
+#dev-unlocked{display:none;}
+.dev-lock-icon{font-size:2rem;opacity:.5;}
+.dev-lock-title{
+  font-family:'Cinzel',serif;font-size:.9rem;font-weight:700;
+  color:var(--red);letter-spacing:.06em;
+}
+.dev-lock-desc{
+  font-family:'Crimson Pro',serif;font-size:.88rem;color:var(--dim);
+  text-align:center;font-style:italic;max-width:400px;line-height:1.6;
+}
+.dev-input-row{display:flex;gap:8px;width:100%;max-width:360px;}
+.dev-input{
+  flex:1;padding:9px 12px;
+  background:var(--surface2);border:1px solid rgba(192,72,72,0.3);border-radius:2px;
+  color:var(--bright);font-family:'Rajdhani',sans-serif;font-size:.85rem;
+  outline:none;transition:border-color .2s;
+}
+.dev-input:focus{border-color:rgba(192,72,72,0.6);}
+.dev-input.error{animation:shake .3s ease;}
+.dev-btn{
+  padding:9px 18px;
+  background:rgba(192,72,72,0.15);color:var(--red);
+  border:1px solid rgba(192,72,72,0.3);border-radius:2px;
+  font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;transition:background .2s;white-space:nowrap;
+}
+.dev-btn:hover{background:rgba(192,72,72,0.28);}
+.dev-error{font-size:.72rem;color:var(--red);display:none;}
+.dev-error.show{display:block;}
+
+/* ── FOOTER ── */
+footer{
+  padding:20px 48px;border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}
+.footer-logo{font-family:'Cinzel',serif;font-size:.72rem;font-weight:700;color:var(--gold);letter-spacing:.15em;}
+.footer-copy{font-size:.62rem;color:var(--dim);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.r{opacity:0;transform:translateY(18px);transition:opacity .5s ease,transform .5s ease;}
+.r.on{opacity:1;transform:translateY(0);}
+.r1{transition-delay:.08s}.r2{transition-delay:.16s}
+
+@media(max-width:700px){
+  nav{padding:12px 20px;}
+  .portal-hero{padding:80px 24px 48px;}
+  .portal-content{padding:32px 24px;}
+  .dev-input-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOCK SCREEN ── -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-logo"><span class="lock-dot"></span>INVICTUS NETWORK</div>
+    <h1 class="lock-title">Portal de Staff</h1>
+    <p class="lock-desc">Acceso restringido al equipo interno de INVICTUS. Si sos parte del equipo, ingresá la contraseña para continuar.</p>
+    <label class="lock-label" for="main-pass">Contraseña de acceso</label>
+    <input type="password" id="main-pass" class="lock-input" placeholder="••••••••••" autocomplete="off">
+    <button class="lock-btn" onclick="checkMainPass()">Acceder →</button>
+    <div class="lock-error" id="main-error">Contraseña incorrecta. Contactá a un Owner si no la tenés.</div>
+    <div class="lock-ornament">⚔ Solo para miembros del equipo INVICTUS</div>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div id="main-content">
+
+  <nav>
+    <div class="nav-logo"><span class="nav-logo-dot"></span>INVICTUS · STAFF PORTAL</div>
+    <div class="nav-right">
+      <span class="nav-tag">Acceso interno</span>
+      <button class="nav-logout" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </nav>
+
+  <div class="portal-hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">Portal interno · Equipo INVICTUS</div>
+      <h1 class="hero-h1">Bienvenido al<br><em>Portal de Staff</em></h1>
+      <p class="hero-desc">Toda la documentación interna del servidor en un solo lugar. Manuales, guías, plantillas y protocolos para el equipo de INVICTUS Chronicle.</p>
+    </div>
+  </div>
+
+  <div class="portal-content">
+
+    <!-- OPERACIONES -->
+    <div class="section-label r">Operaciones</div>
+    <div class="docs-grid r r1">
+
+      <a href="/staff-manual" class="doc-card" style="--card-color:#3a9c6a">
+        <div class="doc-icon">⚖</div>
+        <div class="doc-title">Manual del Staff</div>
+        <p class="doc-desc">Protocolo de moderación, gestión de tickets, sanciones y conducta del equipo. Lectura obligatoria para todo el staff.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(58,156,106,0.12);color:#3a9c6a;border:1px solid rgba(58,156,106,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/staff-crisis" class="doc-card" style="--card-color:#c04848">
+        <div class="doc-icon">🚨</div>
+        <div class="doc-title">Manual de Crisis</div>
+        <p class="doc-desc">Protocolo de respuesta ante situaciones críticas — bugs graves, conflictos internos, filtraciones y emergencias de moderación.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(192,72,72,0.12);color:#c04848;border:1px solid rgba(192,72,72,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/staff-comunicacion" class="doc-card" style="--card-color:#3a78c8">
+        <div class="doc-icon">📢</div>
+        <div class="doc-title">Comunicación Externa</div>
+        <p class="doc-desc">Estrategia de redes sociales, tono de voz, calendario de contenido y guías para Discord, TikTok e Instagram.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(58,120,200,0.12);color:#3a78c8;border:1px solid rgba(58,120,200,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/staff-plantillas" class="doc-card" style="--card-color:#b89030">
+        <div class="doc-icon">📋</div>
+        <div class="doc-title">Plantillas de Anuncios</div>
+        <p class="doc-desc">Plantillas listas para usar en Discord y redes sociales. Aperturas, actualizaciones, eventos y anuncios de temporada.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(184,144,48,0.12);color:#b89030;border:1px solid rgba(184,144,48,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- DISEÑO Y CONSTRUCCIÓN -->
+    <div class="section-label r">Diseño y Construcción</div>
+    <div class="docs-grid r r1">
+
+      <a href="/staff-builders" class="doc-card" style="--card-color:#c8a44a">
+        <div class="doc-icon">🏛</div>
+        <div class="doc-title">Builder's Bible</div>
+        <p class="doc-desc">Guía de estilo de construcción, paleta de bloques por facción, reglas de escala y estándares para los territorios de Chronicle.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(200,164,74,0.1);color:#c8a44a;border:1px solid rgba(200,164,74,0.2);">Builders</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/staff-npcs" class="doc-card" style="--card-color:#8a60c0">
+        <div class="doc-icon">🗿</div>
+        <div class="doc-title">NPCs, Onboarding y Reputación</div>
+        <p class="doc-desc">Sistema de NPCs del servidor, flujo de onboarding para jugadores nuevos y mecánicas del sistema de reputación.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(138,96,192,0.12);color:#8a60c0;border:1px solid rgba(138,96,192,0.2);">Builders · Dev</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- NARRATIVA -->
+    <div class="section-label r">Narrativa y Lore</div>
+    <div class="docs-grid r r1">
+
+      <a href="/staff-lore" class="doc-card" style="--card-color:#6a40a0">
+        <div class="doc-icon">📖</div>
+        <div class="doc-title">El Lore</div>
+        <p class="doc-desc">Historia del mundo de Chronicle, el origen del conflicto entre Grecia y Egipto, y las fuerzas que mueven el servidor narrativamente.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(106,64,160,0.12);color:#8a60c0;border:1px solid rgba(106,64,160,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/staff-lore-conflicto" class="doc-card" style="--card-color:#6a40a0">
+        <div class="doc-icon">⚔</div>
+        <div class="doc-title">Lore del Conflicto</div>
+        <p class="doc-desc">El conflicto entre facciones en detalle — historia, facciones neutrales, eventos narrativos y cómo el Cronista documenta la temporada.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(106,64,160,0.12);color:#8a60c0;border:1px solid rgba(106,64,160,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/staff-progresion" class="doc-card" style="--card-color:#c8a44a">
+        <div class="doc-icon">📊</div>
+        <div class="doc-title">Sistema de Progresión</div>
+        <p class="doc-desc">Documento completo de rangos, requisitos, beneficios, costes y VIPs. La referencia definitiva del sistema de progresión de Chronicle.</p>
+        <div class="doc-meta">
+          <span class="doc-tag" style="background:rgba(200,164,74,0.1);color:#c8a44a;border:1px solid rgba(200,164,74,0.2);">Todo el equipo</span>
+          <span class="doc-arrow">→</span>
+        </div>
+      </a>
+
+    </div>
+
+    <!-- DEV SECTION -->
+    <div class="section-label r" style="color:var(--red);">
+      <span style="color:var(--red)">Desarrollo</span>
+    </div>
+    <div class="dev-section r r1">
+      <div id="dev-locked">
+        <div class="dev-lock-overlay">
+          <div class="dev-lock-icon">🔒</div>
+          <div class="dev-lock-title">Acceso restringido — Solo Developers</div>
+          <p class="dev-lock-desc">Esta sección contiene documentación técnica sensible. Requiere contraseña adicional exclusiva para el equipo de desarrollo.</p>
+          <div class="dev-input-row">
+            <input type="password" id="dev-pass" class="dev-input" placeholder="Contraseña developer" autocomplete="off">
+            <button class="dev-btn" onclick="checkDevPass()">Acceder</button>
+          </div>
+          <div class="dev-error" id="dev-error">Contraseña incorrecta.</div>
+        </div>
+      </div>
+      <div id="dev-unlocked">
+        <div class="docs-grid" style="margin-bottom:0;">
+          <a href="/staff-dev" class="doc-card" style="--card-color:#c04848">
+            <div class="doc-icon">⚙</div>
+            <div class="doc-title">Developer Documentation</div>
+            <p class="doc-desc">Arquitectura técnica del servidor, plugins, APIs, configuraciones y guías de desarrollo para Chronicle.</p>
+            <div class="doc-meta">
+              <span class="doc-tag" style="background:rgba(192,72,72,0.12);color:#c04848;border:1px solid rgba(192,72,72,0.2);">Solo Developers</span>
+              <span class="doc-arrow">→</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="footer-logo">⚔ INVICTUS NETWORK · STAFF PORTAL</div>
+    <div class="footer-copy">Uso interno exclusivo · No compartir · © 2025 INVICTUS Network</div>
+  </footer>
+
+</div>
+
+<script>
+// ── PASSWORDS — reemplazá los valores entre comillas ──
+const MAIN_PASSWORD = 'CONTRASEÑA_GENERAL_AQUÍ';
+const DEV_PASSWORD  = 'CONTRASEÑA_DEV_AQUÍ';
+
+// ── SESSION ──
+function init(){
+  if(sessionStorage.getItem('inv_staff_auth') === 'true'){
+    showPortal();
+  }
+}
+
+function checkMainPass(){
+  const input = document.getElementById('main-pass');
+  const error = document.getElementById('main-error');
+  if(input.value === MAIN_PASSWORD){
+    sessionStorage.setItem('inv_staff_auth','true');
+    showPortal();
+  } else {
+    input.classList.add('error');
+    error.classList.add('show');
+    setTimeout(()=>input.classList.remove('error'),400);
+    input.value='';
+    input.focus();
+  }
+}
+
+function showPortal(){
+  document.getElementById('lock-screen').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  // trigger reveal animations
+  setTimeout(()=>{
+    document.querySelectorAll('.r').forEach(el=>{
+      const io = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');io.unobserve(e.target);}});
+      },{threshold:.07});
+      io.observe(el);
+    });
+  },50);
+}
+
+function checkDevPass(){
+  const input = document.getElementById('dev-pass');
+  const error = document.getElementById('dev-error');
+  if(input.value === DEV_PASSWORD){
+    sessionStorage.setItem('inv_dev_auth','true');
+    document.getElementById('dev-locked').style.display='none';
+    document.getElementById('dev-unlocked').style.display='block';
+  } else {
+    input.classList.add('error');
+    error.classList.add('show');
+    setTimeout(()=>input.classList.remove('error'),400);
+    input.value='';input.focus();
+  }
+}
+
+function logout(){
+  sessionStorage.removeItem('inv_staff_auth');
+  sessionStorage.removeItem('inv_dev_auth');
+  location.reload();
+}
+
+// Enter key support
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    if(document.getElementById('lock-screen').style.display!=='none') checkMainPass();
+  }
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && document.activeElement.id==='dev-pass') checkDevPass();
+});
+
+init();
+</script>
+</body>
+</html>
